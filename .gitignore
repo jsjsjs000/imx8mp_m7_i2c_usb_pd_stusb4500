@@ -1,0 +1,8 @@
+armgcc/build_log.txt
+armgcc/CMakeFiles
+armgcc/release
+armgcc/debug
+armgcc/cmake_install.cmake
+armgcc/CMakeCache.txt
+armgcc/Makefile
+armgcc/output.map

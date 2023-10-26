@@ -1,0 +1,24 @@
+{
+	"files.associations": {
+		"fsl_device_registers.h": "c",
+		"fsl_debug_console.h": "c",
+		"clock_config.h": "c",
+		"semphr.h": "c",
+		"queue.h": "c",
+		"fsl_component_serial_manager.h": "c",
+		"uart_task.h": "c"
+	},
+	"makefile.configurations": [
+		{
+			"name": "Default",
+			"makeArgs": []
+		},
+		{
+			"name": "Print make version",
+			"makeArgs": ["--version"]
+		}
+	],
+	"makefile.makeDirectory": "armgcc",
+	"makefile.launchConfigurations": [],
+	"cmake.sourceDirectory": "/home/p2119/jarsulk-pco/programs/imx8mp/m7/imx8mp_m7_led_demo/armgcc"
+}

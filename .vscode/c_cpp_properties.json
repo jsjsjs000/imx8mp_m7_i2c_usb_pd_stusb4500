@@ -1,0 +1,20 @@
+{
+	"configurations": [
+		{
+			"name": "Linux",
+			"includePath": [
+				"${workspaceFolder}/**",
+				"/opt/MCUXpresso_SDK_2_14_0_MIMX8ML8xxxLZ/devices/MIMX8ML8/**",
+				"/opt/MCUXpresso_SDK_2_14_0_MIMX8ML8xxxLZ/rtos/freertos/freertos-kernel/**",
+				"/opt/MCUXpresso_SDK_2_14_0_MIMX8ML8xxxLZ/middleware/multicore/rpmsg_lite/**"
+			],
+			"defines": [],
+			"compilerPath": "/usr/bin/gcc",
+			"cStandard": "c17",
+			"cppStandard": "gnu++14",
+			"intelliSenseMode": "linux-gcc-x64",
+			"configurationProvider": "ms-vscode.makefile-tools"
+		}
+	],
+	"version": 4
+}
