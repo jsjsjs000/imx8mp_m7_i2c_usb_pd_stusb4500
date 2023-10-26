@@ -21,6 +21,7 @@
 #include "common.h"
 #include "i2c_task.h"
 #include "i2c_usb_pd_stusb4500.h"
+#include "i2c_usb_pd_stusb4500_print.h"
 
 static uint8_t i2c_buffor[I2C_BUFFOR_SIZE];
 static i2c_master_handle_t *i2c_master_handle;
@@ -65,17 +66,41 @@ void i2c_task_initialize(void)
 void i2c_task_task(void *pvParameters)
 {
 	PRINTF("I2C task started.\r\n");
-	vTaskDelay(pdMS_TO_TICKS(100));
+	vTaskDelay(pdMS_TO_TICKS(500));
+
+	uint16_t type_c_release_supported_by_device;
+	if (i2c_usb_pd_stusb4500_read_type_c_release_supported_by_device(&type_c_release_supported_by_device))
+		PRINTF("Type-C release supported by device = %d\r\n", type_c_release_supported_by_device);
+	else
+		PRINTF("Can't read Type-C release supported by device.\r\n");
+
+	uint16_t power_delivery_release_supported_by_device;
+	if (i2c_usb_pd_stusb4500_read_power_delivery_release_supported_by_device(&power_delivery_release_supported_by_device))
+		PRINTF("Power Delivery release supported by device = %d.%d\r\n",
+				power_delivery_release_supported_by_device >> 8, power_delivery_release_supported_by_device & 0xff);
+	else
+		PRINTF("Can't read power delivery release supported by device.\r\n");
+
+	union stusb4500_alert_status1_t alert_status1;
+	if (i2c_usb_pd_stusb4500_read_alert_status1(&alert_status1))
+		i2c_usb_pd_stusb4500_print_alert_status1(&alert_status1);
+	else
+		PRINTF("Can't read alert status1.\r\n");
+
+	union stusb4500_port_status_t port_status;
+	if (i2c_usb_pd_stusb4500_read_port_status(&port_status))
+		i2c_usb_pd_stusb4500_print_port_status(&port_status);
+	else
+		PRINTF("Can't read port status.\r\n");
+
+	// i2c_usb_pd_stusb4500_port_status1();
+	// i2c_usb_pd_stusb4500_read_status();
+	// i2c_usb_pd_stusb4500_read_pdo_registers();
+	// i2c_usb_pd_stusb4500_read_usb_pd_status();
+	// i2c_usb_pd_stusb4500_read_rx_data();
 
 	while (true)
 	{
-		PRINTF("\r\n");
-		// i2c_usb_pd_stusb4500_port_status0();
-		// i2c_usb_pd_stusb4500_port_status1();
-		// i2c_usb_pd_stusb4500_read_status();
-		// i2c_usb_pd_stusb4500_read_pdo_registers();
-		i2c_usb_pd_stusb4500_read_usb_pd_status();
-
 		vTaskDelay(pdMS_TO_TICKS(1000));
 	}
 
@@ -84,8 +109,9 @@ void i2c_task_task(void *pvParameters)
 
 bool i2c_task_read_data(uint8_t *send, size_t send_size, uint8_t *received, size_t received_size)
 {
-		/* write to I2C */
 	memcpy(i2c_buffor, send, send_size);
+
+		/* write to I2C */
 	masterXfer.direction = kI2C_Write;
 	masterXfer.dataSize = 1;
 
@@ -106,15 +132,18 @@ bool i2c_task_read_data(uint8_t *send, size_t send_size, uint8_t *received, size
 		PRINTF("I2C master: error during read transaction, 0x%x\r\n", status);
 		return false;
 	}
-	*received = i2c_buffor[0];
+
+	memcpy(received, i2c_buffor, received_size);
+	// *received = i2c_buffor[0];
 
 	return true;
 }
 
 bool i2c_task_write_data(uint8_t *data, size_t data_size)
 {
-		/* write to I2C */
 	memcpy(i2c_buffor, data, data_size);
+
+		/* write to I2C */
 	masterXfer.direction = kI2C_Write;
 	masterXfer.dataSize = data_size;
 

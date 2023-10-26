@@ -13,7 +13,10 @@
 		(((a) >> 8) & 0xff00) |  \
 		(((a) >> 24) & 0xff))
 
-#define UINT16_FROM_BYTES(a1, a0)  (((a1) << 8) | (a0))
+#define UINT16_FROM_LE_BYTES(a0, a1)          (((a1) << 8) | (a0))
+#define UINT16_FROM_BE_BYTES(a1, a0)          (((a1) << 8) | (a0))
+#define UINT32_FROM_LE_BYTES(a0, a1, a2, a3)  (((a3) << 24) | ((a2) << 16) | ((a1) << 8) | (a0))
+#define UINT32_FROM_BE_BYTES(a3, a2, a1, a0)  (((a3) << 24) | ((a2) << 16) | ((a1) << 8) | (a0))
 
 #define GET_BIT(byte, bit_nr)  ((byte) >> (bit_nr) & 0x01U)
 #define SET_BIT(byte, bit_nr)  ((byte) | (1U << (bit_nr)))

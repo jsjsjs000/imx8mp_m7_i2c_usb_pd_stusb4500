@@ -75,13 +75,54 @@
 #define STUSB4500_RDO_REG_STATUS_2           0x93
 #define STUSB4500_RDO_REG_STATUS_3           0x94
 
-union i2c_usb_pd_stusb4500_pdo_t
+#define STUSB4500_PDO_FIXED                  0
+#define STUSB4500_PDO_BATTERY                1
+#define STUSB4500_PDO_VARIABLE_SUPPLY        2
+#define STUSB4500_PDO_RESERVED               3
+
+union stusb4500_alert_status1_t
+{
+	uint8_t data;
+	struct
+	{
+		uint32_t reserved1:1;
+		uint32_t prt_status_al:1;
+		uint32_t reserved2:1;
+		uint32_t pd_typec_status_al:1;
+		uint32_t cc_hw_fault_status_al:1;
+		uint32_t typec_monitoring_status_al:1;
+		uint32_t port_status_al:1;
+		uint32_t reserved3:1;
+	} alert_status1;
+};
+
+union stusb4500_port_status_t
+{
+	uint16_t data16;
+	struct
+	{
+		uint32_t attach_trans:1;
+		uint32_t reserved1:7;
+		uint32_t attach:1;
+		uint32_t reserved2:1;
+		uint32_t data_mode:1;
+		uint32_t power_mode:1;
+		uint32_t reserved3:1;
+		uint32_t attached_device:3;
+	} port_status;
+};
+
+
+
+
+
+union stusb4500_pdo_t
 {
 	uint32_t data32;
 	struct
 	{
-		uint32_t operational_current_mA_units:10;
-		uint32_t voltage_mV_units:10;
+		uint32_t operational_current_10ma:10;  /// * 10 mA
+		uint32_t voltage_50mv:10;              /// * 50 mV
 		uint32_t reserved:3;
 		uint32_t fast_role_swap:2;
 		uint32_t dual_role_data:1;
@@ -93,13 +134,55 @@ union i2c_usb_pd_stusb4500_pdo_t
 	} pdo;
 };
 
-union i2c_usb_pd_stusb4500_usb_pd_status_t
+union stusb4500_fixed_supply_pdo_source_t
 {
 	uint32_t data32;
 	struct
 	{
-		uint32_t maximum_operating_current_units:10;
-		uint32_t operating_current_units:10;
+		uint32_t maximum_current_10ma:10;      /// * 10 mA
+		uint32_t voltage_50mv:10;              /// * 50 mV
+		uint32_t peak_current:2;
+		uint32_t reserved:3;
+		uint32_t dual_role_data:1;
+		uint32_t usb_communication_capable:1;
+		uint32_t externally_powered:1;
+		uint32_t usb_suspend_supported:1;
+		uint32_t dual_role_power:1;
+		uint32_t fixed_supply:2;
+	} fixed_supply_pdo_source;
+};
+
+union stusb4500_variable_supply_pdo_source_t
+{
+	uint32_t data32;
+	struct
+	{
+		uint32_t maximum_current_10ma:10;      /// * 10 mA
+		uint32_t minimum_voltage_50mv:10;      /// * 50 mV
+		uint32_t maximum_voltage_50mv:10;      /// * 50 mV
+		uint32_t variable_supply:2;
+	} variable_supply_pdo_source;
+};
+
+union stusb4500_battery_supply_pdo_source_t
+{
+	uint32_t data32;
+	struct
+	{
+		uint32_t maximum_allowable_power_250mw:10;  /// * 250 mW
+		uint32_t minimum_voltage_50mv:10;           /// * 50 mV
+		uint32_t maximum_voltage_50mv:10;           /// * 50 mV
+		uint32_t battery:2;
+	} battery_supply_pdo_source;
+};
+
+union stusb4500_usb_pd_status_t
+{
+	uint32_t data32;
+	struct
+	{
+		uint32_t maximum_operating_current_10ma:10;       /// * 10 mA
+		uint32_t operating_current_10ma:10;               /// * 10 mA
 		uint32_t reserved1:3;
 		uint32_t uncheked_extended_messages_supported:1;
 		uint32_t no_usb_suspend:1;
@@ -111,8 +194,27 @@ union i2c_usb_pd_stusb4500_usb_pd_status_t
 	} usb_pd_status;
 };
 
-extern bool i2c_usb_pd_stusb4500_port_status0(void);
-extern bool i2c_usb_pd_stusb4500_port_status1(void);
+union stusb4500_rx_data_t
+{
+	uint32_t data32;
+	struct
+	{
+		uint32_t reserved:30;
+		uint32_t type:2;
+	};
+};
+
+extern bool i2c_usb_pd_stusb4500_read_type_c_release_supported_by_device(uint16_t *type_c_release_supported_by_device);
+extern bool i2c_usb_pd_stusb4500_read_power_delivery_release_supported_by_device(
+		uint16_t *power_delivery_release_supported_by_device);
+extern bool i2c_usb_pd_stusb4500_read_alert_status1(union stusb4500_alert_status1_t *alert_status1);
+extern bool i2c_usb_pd_stusb4500_read_port_status(union stusb4500_port_status_t *port_status);
+
+
+
+// extern bool i2c_usb_pd_stusb4500_port_status0(void);
+// extern bool i2c_usb_pd_stusb4500_port_status1(void);
 extern bool i2c_usb_pd_stusb4500_read_status(void);
 extern bool i2c_usb_pd_stusb4500_read_pdo_registers(void);
 extern bool i2c_usb_pd_stusb4500_read_usb_pd_status(void);
+extern bool i2c_usb_pd_stusb4500_read_rx_data(void);

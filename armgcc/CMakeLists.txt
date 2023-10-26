@@ -62,6 +62,8 @@ add_executable(${MCUX_SDK_PROJECT_NAME}
 	"${ProjDirPath}/../i2c_task.h"
 	"${ProjDirPath}/../i2c_usb_pd_stusb4500.c"
 	"${ProjDirPath}/../i2c_usb_pd_stusb4500.h"
+	"${ProjDirPath}/../i2c_usb_pd_stusb4500_print.c"
+	"${ProjDirPath}/../i2c_usb_pd_stusb4500_print.h"
 )
 
 target_include_directories(${MCUX_SDK_PROJECT_NAME} PRIVATE
