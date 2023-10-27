@@ -99,11 +99,8 @@ void i2c_task_task(void *pvParameters)
 	else
 		PRINTF("Can't read Type-C monitoring status.\r\n");
 
-	// i2c_usb_pd_stusb4500_port_status1();
-	// i2c_usb_pd_stusb4500_read_status();
-	// i2c_usb_pd_stusb4500_read_pdo_registers();
-	// i2c_usb_pd_stusb4500_read_usb_pd_status();
-	// i2c_usb_pd_stusb4500_read_rx_data();
+	// $$ odczyt i wyświetlenie rejestrów
+	// $$ zapis, reset, wymuszenie ponowne negocjacji
 
 	while (true)
 	{

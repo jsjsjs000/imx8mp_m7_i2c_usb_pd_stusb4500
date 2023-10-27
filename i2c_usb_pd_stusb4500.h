@@ -246,7 +246,7 @@ union stusb4500_pdo_t
 		uint32_t fast_role_swap:2;
 		uint32_t dual_role_data:1;
 		uint32_t usb_communication_capable:1;
-		uint32_t unconstrained_capable:1;
+		uint32_t unconstrained_power:1;
 		uint32_t higher_capability:1;
 		uint32_t dual_role_power:1;
 		uint32_t fixed_supply:2;
@@ -343,7 +343,6 @@ extern bool i2c_usb_pd_stusb4500_read_pd_typec_status(uint8_t *pd_typec_status);
 extern bool i2c_usb_pd_stusb4500_read_typec_status(union stusb4500_typec_status_t *typec_status);
 extern bool i2c_usb_pd_stusb4500_read_prt_status(union stusb4500_prt_status_t *prt_status);
 extern bool i2c_usb_pd_stusb4500_read_pd_command_ctrl_status(uint8_t *pd_command_ctrl_status);
-extern bool i2c_usb_pd_stusb4500_read_vbus_ctrl(bool *vbus_ctrl);
 extern bool i2c_usb_pd_stusb4500_read_pe_fsm(enum stusb4500_pe_fsm *pe_fsm);
 extern bool i2c_usb_pd_stusb4500_read_gpio_sw(bool *gpio_sw);
 extern bool i2c_usb_pd_stusb4500_read_device_id(uint8_t *device_id);

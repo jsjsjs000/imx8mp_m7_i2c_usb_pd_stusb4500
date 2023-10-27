@@ -112,36 +112,55 @@ void i2c_usb_pd_stusb4500_print_typec_status(union stusb4500_typec_status_t *typ
 
 void i2c_usb_pd_stusb4500_print_prt_status(union stusb4500_prt_status_t *prt_status)
 {
-
+	PRINTF("PRT status:\r\n");
+	PRINTF("  prl hw rst received = %d\r\n", prt_status->prt_status.prl_hw_rst_received);
+	PRINTF("  prl msg received = %d\r\n", prt_status->prt_status.prl_msg_received);
+	PRINTF("  prt bist received = %d\r\n", prt_status->prt_status.prt_bist_received);
 }
 
 void i2c_usb_pd_stusb4500_print_pd_command_ctrl_status(uint8_t *pd_command_ctrl_status)
 {
-
-}
-
-void i2c_usb_pd_stusb4500_print_vbus_ctrl(bool *vbus_ctrl)
-{
-
+	PRINTF("PD command ctrl = %d\r\n", *pd_command_ctrl_status);
 }
 
 void i2c_usb_pd_stusb4500_print_pe_fsm(enum stusb4500_pe_fsm *pe_fsm)
 {
-
+	PRINTF("PE FSM (Policy engine layer FSM state) = ");
+	switch (*pe_fsm)
+	{
+		case 0x00: PRINTF("pe_init\r\n"); break;
+		case 0x01: PRINTF("pe_soft_reset\r\n"); break;
+		case 0x02: PRINTF("pe_hard_reset\r\n"); break;
+		case 0x03: PRINTF("pe_send_soft_reset\r\n"); break;
+		case 0x04: PRINTF("pe_c_bist\r\n"); break;
+		case 0x12: PRINTF("pe_snk_startup\r\n"); break;
+		case 0x13: PRINTF("pe_snk_discovery\r\n"); break;
+		case 0x14: PRINTF("pe_snk_wait_for_capabilities\r\n"); break;
+		case 0x15: PRINTF("pe_snk_evaluate_capabilities\r\n"); break;
+		case 0x16: PRINTF("pe_snk_select_capabilities\r\n"); break;
+		case 0x17: PRINTF("pe_snk_transition_sink\r\n"); break;
+		case 0x18: PRINTF("pe_snk_ready\r\n"); break;
+		case 0x19: PRINTF("pe_snk_ready_sending\r\n"); break;
+		case 0x3a: PRINTF("pe_hard_reset_shutdown\r\n"); break;
+		case 0x3b: PRINTF("pe_hard_reset_recovery\r\n"); break;
+		case 0x40: PRINTF("pe_errorrecovery\r\n"); break;
+		default:   PRINTF("reserved\r\n");
+	}
 }
 
 void i2c_usb_pd_stusb4500_print_gpio_sw(bool *gpio_sw)
 {
-
+	PRINTF("GPIO SW (GPIO output value) = ");
+	if (*gpio_sw)
+		PRINTF("0\r\n");
+	else
+		PRINTF("Hi-Z\r\n");
 }
 
 void i2c_usb_pd_stusb4500_print_device_id(uint8_t *device_id)
 {
-
+	PRINTF("Device ID = %d\r\n", *device_id);
 }
-
-
-
 
 void i2c_usb_pd_stusb4500_print_fixed_supply_pdo_source_t(union stusb4500_fixed_supply_pdo_source_t *pdo)
 {
@@ -189,14 +208,36 @@ void i2c_usb_pd_stusb4500_print_rx_data_structure(union stusb4500_rx_data_obj_t 
 	}
 }
 
-void i2c_usb_pd_stusb4500_print_pdo_structure(union stusb4500_pdo_t *pdo)
+void i2c_usb_pd_stusb4500_print_pdo_structure(uint8_t pdo_number, union stusb4500_pdo_t *pdo)
 {
-	PRINTF("%d mA\r\n", pdo->pdo.operational_current_10ma * 10);
-	PRINTF("%d mV\r\n", pdo->pdo.voltage_50mv * 50);
+	PRINTF("PDO %d:", pdo_number);
+	PRINTF("  operational current = %d mA\r\n", pdo->pdo.operational_current_10ma * 10);
+	PRINTF("  voltage = %d mV\r\n", pdo->pdo.voltage_50mv * 50);
+	PRINTF("  fast role swap required Type-C current = %d \r\n", pdo->pdo.fast_role_swap);
+	PRINTF("  dual-role data = %d \r\n", pdo->pdo.dual_role_data);
+	PRINTF("  USB communication capable = %d \r\n", pdo->pdo.usb_communication_capable);
+	PRINTF("  unconstrained power = %d \r\n", pdo->pdo.unconstrained_power);
+	PRINTF("  higher capability = %d \r\n", pdo->pdo.higher_capability);
+	PRINTF("  dual role power = %d \r\n", pdo->pdo.dual_role_power);
+	PRINTF("  fixed supply = ");
+	switch (pdo->pdo.fixed_supply)
+	{
+		case 0: PRINTF("fixed\r\n");
+		case 1: PRINTF("battery\r\n");
+		case 2: PRINTF("variable supply\r\n");
+		case 3: PRINTF("reserved\r\n");
+	}
 }
 
 void i2c_usb_pd_stusb4500_print_usb_pd_status(union stusb4500_usb_pd_status_t *usb_pd_status)
 {
-	PRINTF("max %d mA\r\n", usb_pd_status->usb_pd_status.maximum_operating_current_10ma * 10);
-	PRINTF("operating %d mA\r\n", usb_pd_status->usb_pd_status.operating_current_10ma * 10);
+	PRINTF("USB PD status:\r\n");
+	PRINTF("  maximum operating current = %d mA\r\n", usb_pd_status->usb_pd_status.maximum_operating_current_10ma * 10);
+	PRINTF("  operating current = %d mA\r\n", usb_pd_status->usb_pd_status.operating_current_10ma * 10);
+	PRINTF("  uncheked extended messages supported = %d\r\n", usb_pd_status->usb_pd_status.uncheked_extended_messages_supported);
+	PRINTF("  no USB suspend = %d\r\n", usb_pd_status->usb_pd_status.no_usb_suspend);
+	PRINTF("  USB communications capable = %d\r\n", usb_pd_status->usb_pd_status.usb_communications_capable);
+	PRINTF("  capability mismatch = %d\r\n", usb_pd_status->usb_pd_status.capability_mismatch);
+	PRINTF("  give back flag 0 = %d\r\n", usb_pd_status->usb_pd_status.giveback_flag);
+	PRINTF("  object position = %d\r\n", usb_pd_status->usb_pd_status.object_position);
 }

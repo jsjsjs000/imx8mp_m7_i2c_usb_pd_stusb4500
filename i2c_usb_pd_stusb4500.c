@@ -102,16 +102,6 @@ bool i2c_usb_pd_stusb4500_read_pd_command_ctrl_status(uint8_t *pd_command_ctrl_s
 	return i2c_usb_pd_stusb4500_read_register(STUSB4500_PD_COMMAND_CTRL, pd_command_ctrl_status);
 }
 
-bool i2c_usb_pd_stusb4500_read_vbus_ctrl(bool *vbus_ctrl)
-{
-	uint8_t a = 0;
-	if (!i2c_usb_pd_stusb4500_read_register(STUSB4500_VBUS_CTRL, &a))
-		return false;
-	
-	*vbus_ctrl = a & 0x2;
-	return true;
-}
-
 bool i2c_usb_pd_stusb4500_read_pe_fsm(enum stusb4500_pe_fsm *pe_fsm)
 {
 	return i2c_usb_pd_stusb4500_read_register(STUSB4500_PE_FSM, pe_fsm);
