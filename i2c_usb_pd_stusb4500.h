@@ -24,7 +24,7 @@
 #define STUSB4500_VBUS_CTRL                  0x27
 #define STUSB4500_PE_FSM                     0x29
 #define STUSB4500_GPIO_SW_GPIO               0x2D
-#define STUSB4500_Device_ID                  0x2F
+#define STUSB4500_DEVICE_ID                  0x2F
 #define STUSB4500_RX_HEADER_LOW              0x31
 #define STUSB4500_RX_HEADER_HIGH             0x32
 #define STUSB4500_RX_DATA_OBJ1_0             0x33
@@ -75,11 +75,6 @@
 #define STUSB4500_RDO_REG_STATUS_2           0x93
 #define STUSB4500_RDO_REG_STATUS_3           0x94
 
-#define STUSB4500_PDO_FIXED                  0
-#define STUSB4500_PDO_BATTERY                1
-#define STUSB4500_PDO_VARIABLE_SUPPLY        2
-#define STUSB4500_PDO_RESERVED               3
-
 union stusb4500_alert_status1_t
 {
 	uint8_t data;
@@ -94,6 +89,13 @@ union stusb4500_alert_status1_t
 		uint32_t port_status_al:1;
 		uint32_t reserved3:1;
 	} alert_status1;
+};
+
+enum stusb4500_attached_device
+{
+	stusb4500_none_att = 0,
+	stusb4500_snk_att = 1,
+	stusb4500_dbg_att = 3
 };
 
 union stusb4500_port_status_t
@@ -112,9 +114,126 @@ union stusb4500_port_status_t
 	} port_status;
 };
 
+union stusb4500_typec_monitoring_status_t
+{
+	uint16_t data16;
+	struct
+	{
+		uint32_t reserved1:1;
+		uint32_t vbus_valid_snk_trans:1;
+		uint32_t vbus_vsafe0v_trans:1;
+		uint32_t vbus_ready_trans:1;
+		uint32_t vbus_low_status:1;
+		uint32_t vbus_high_status:1;
+		uint32_t reserved2:2;
+		uint32_t reserved3:1;
+		uint32_t vbus_valid_snk:1;
+		uint32_t vbus_vsafe0v:1;
+		uint32_t vbus_ready:1;
+		uint32_t reserved4:4;
+	} mon_status;
+};
 
+enum stusb4500_cc_state
+{
+	stusb4500_cc_state_snk_default = 1,
+	stusb4500_cc_state_snk_power1_5 = 2,
+	stusb4500_cc_state_snk_power3_0 = 3
+};
 
+union stusb4500_cc_status_t
+{
+	uint8_t data;
+	struct
+	{
+		uint32_t cc1_state:2;
+		uint32_t cc2_state:2;
+		uint32_t connect_result:1;
+		uint32_t looking_4_connection:1;
+		uint32_t reserved:2;
+	} cc_status;
+};
 
+union stusb4500_cc_hw_fault_status_t
+{
+	uint16_t data16;
+	struct
+	{
+		uint32_t reserved1:4;
+		uint32_t vpu_valid_trans:1;
+		uint32_t vpu_ovp_fault_trans:1;
+		uint32_t reserved2:2;
+		uint32_t reserved3:4;
+		uint32_t vbus_disch_fault:1;
+		uint32_t vpu_valid:1;
+		uint32_t vpu_ovp_fault:1;
+	} cc_hw_fault_status;
+};
+
+enum stusb4500_pd_typec_status
+{
+	stusb4500_pd_typec_status_cleared = 0x0,
+	stusb4500_pd_typec_status_pd_hard_reset_complete_ack = 0x8,
+	stusb4500_pd_typec_status_pd_hard_reset_received_ack = 0xe,
+	stusb4500_pd_typec_status_pd_hard_reset_send_ack = 0xf
+};
+
+enum stusb4500_typec_fsm_state
+{
+	stusb4500_typec_fsm_state_unattached_snk = 0x0,
+	stusb4500_typec_fsm_state_attachwait_snk = 0x1,
+	stusb4500_typec_fsm_state_attached_snk = 0x2,
+	stusb4500_typec_fsm_state_debug_accessory_snk = 0x3,
+	stusb4500_typec_fsm_state_try_src = 0xc,
+	stusb4500_typec_fsm_state_unattached_accessory = 0xd,
+	stusb4500_typec_fsm_state_attachwait_accessory = 0xe,
+	stusb4500_typec_fsm_state_typec_error_recovery = 0x13
+};
+
+union stusb4500_typec_status_t
+{
+	uint8_t data;
+	struct
+	{
+		uint32_t typec_fsm_state:5;
+		uint32_t reserved:2;
+		uint32_t reverse:1;
+	} typec_status;
+};
+
+union stusb4500_prt_status_t
+{
+	uint8_t data;
+	struct
+	{
+		uint32_t prl_hw_rst_received:1;
+		uint32_t reserved1:1;
+		uint32_t prl_msg_received:1;
+		uint32_t reserved2:1;
+		uint32_t prt_bist_received:1;
+		uint32_t reserved3:3;
+	} prt_status;
+};
+
+enum stusb4500_pe_fsm
+{
+	stusb4500_pe_init                      = 0x00,
+	stusb4500_pe_soft_reset                = 0x01,
+	stusb4500_pe_hard_reset                = 0x02,
+	stusb4500_pe_send_soft_reset           = 0x03,
+	stusb4500_pe_c_bist                    = 0x04,
+	stusb4500_pe_snk_startup               = 0x12,
+	stusb4500_pe_snk_discovery             = 0x13,
+	stusb4500_pe_snk_wait_for_capabilities = 0x14,
+	stusb4500_pe_snk_evaluate_capabilities = 0x15,
+	stusb4500_pe_snk_select_capabilities   = 0x16,
+	stusb4500_pe_snk_transition_sink       = 0x17,
+	stusb4500_pe_snk_ready                 = 0x18,
+	stusb4500_pe_snk_ready_sending         = 0x19,
+	stusb4500_pe_hard_reset_shutdown       = 0x3a,
+	stusb4500_pe_hard_reset_recovery       = 0x3b,
+	stusb4500_pe_errorrecovery             = 0x40
+};
 
 union stusb4500_pdo_t
 {
@@ -194,7 +313,15 @@ union stusb4500_usb_pd_status_t
 	} usb_pd_status;
 };
 
-union stusb4500_rx_data_t
+enum stusb4500_rx_data_pdo_type
+{
+	stusb4500_pdo_type_fixed           = 0,
+	stusb4500_pdo_type_battery         = 1,
+	stusb4500_pdo_type_variable_supply = 2,
+	stusb4500_pdo_type_reserved        = 3,
+};
+
+union stusb4500_rx_data_obj_t
 {
 	uint32_t data32;
 	struct
@@ -209,12 +336,19 @@ extern bool i2c_usb_pd_stusb4500_read_power_delivery_release_supported_by_device
 		uint16_t *power_delivery_release_supported_by_device);
 extern bool i2c_usb_pd_stusb4500_read_alert_status1(union stusb4500_alert_status1_t *alert_status1);
 extern bool i2c_usb_pd_stusb4500_read_port_status(union stusb4500_port_status_t *port_status);
-
-
-
-// extern bool i2c_usb_pd_stusb4500_port_status0(void);
-// extern bool i2c_usb_pd_stusb4500_port_status1(void);
-extern bool i2c_usb_pd_stusb4500_read_status(void);
-extern bool i2c_usb_pd_stusb4500_read_pdo_registers(void);
-extern bool i2c_usb_pd_stusb4500_read_usb_pd_status(void);
-extern bool i2c_usb_pd_stusb4500_read_rx_data(void);
+extern bool i2c_usb_pd_stusb4500_read_typec_monitoring_status(union stusb4500_typec_monitoring_status_t *mon_status);
+extern bool i2c_usb_pd_stusb4500_read_cc_status(union stusb4500_cc_status_t *cc_status);
+extern bool i2c_usb_pd_stusb4500_read_cc_hw_fault_status(union stusb4500_cc_hw_fault_status_t *cc_hw_fault_status);
+extern bool i2c_usb_pd_stusb4500_read_pd_typec_status(uint8_t *pd_typec_status);
+extern bool i2c_usb_pd_stusb4500_read_typec_status(union stusb4500_typec_status_t *typec_status);
+extern bool i2c_usb_pd_stusb4500_read_prt_status(union stusb4500_prt_status_t *prt_status);
+extern bool i2c_usb_pd_stusb4500_read_pd_command_ctrl_status(uint8_t *pd_command_ctrl_status);
+extern bool i2c_usb_pd_stusb4500_read_vbus_ctrl(bool *vbus_ctrl);
+extern bool i2c_usb_pd_stusb4500_read_pe_fsm(enum stusb4500_pe_fsm *pe_fsm);
+extern bool i2c_usb_pd_stusb4500_read_gpio_sw(bool *gpio_sw);
+extern bool i2c_usb_pd_stusb4500_read_device_id(uint8_t *device_id);
+extern bool i2c_usb_pd_stusb4500_read_rx_data_obj(union stusb4500_rx_data_obj_t **rx_data);
+extern bool i2c_usb_pd_stusb4500_read_pdo_numb(uint8_t *pdo_numb);
+extern bool i2c_usb_pd_stusb4500_read_pdo_registers(union stusb4500_pdo_t *pdo1, union stusb4500_pdo_t *pdo2,
+		union stusb4500_pdo_t *pdo3);
+extern bool i2c_usb_pd_stusb4500_read_usb_pd_status(union stusb4500_usb_pd_status_t *usb_pd_status);
