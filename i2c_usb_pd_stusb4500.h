@@ -1,3 +1,6 @@
+#define STUSB4500_SOFT_RESET1                0x0d
+#define STUSB4500_SOFT_RESET2                0x26
+
 #define STUSB4500_BCD_TYPEC_REV_LOW          0x06
 #define STUSB4500_BCD_TYPEC_REV_HIGH         0x07
 #define STUSB4500_BCD_USBPD_REV_LOW          0x08
@@ -165,6 +168,7 @@ union stusb4500_cc_hw_fault_status_t
 		uint32_t reserved2:2;
 		uint32_t reserved3:4;
 		uint32_t vbus_disch_fault:1;
+		uint32_t reserved4:1;
 		uint32_t vpu_valid:1;
 		uint32_t vpu_ovp_fault:1;
 	} cc_hw_fault_status;
@@ -331,6 +335,7 @@ union stusb4500_rx_data_obj_t
 	};
 };
 
+	/// read registers
 extern bool i2c_usb_pd_stusb4500_read_type_c_release_supported_by_device(uint16_t *type_c_release_supported_by_device);
 extern bool i2c_usb_pd_stusb4500_read_power_delivery_release_supported_by_device(
 		uint16_t *power_delivery_release_supported_by_device);
@@ -346,8 +351,12 @@ extern bool i2c_usb_pd_stusb4500_read_pd_command_ctrl_status(uint8_t *pd_command
 extern bool i2c_usb_pd_stusb4500_read_pe_fsm(enum stusb4500_pe_fsm *pe_fsm);
 extern bool i2c_usb_pd_stusb4500_read_gpio_sw(bool *gpio_sw);
 extern bool i2c_usb_pd_stusb4500_read_device_id(uint8_t *device_id);
-extern bool i2c_usb_pd_stusb4500_read_rx_data_obj(union stusb4500_rx_data_obj_t **rx_data);
+extern bool i2c_usb_pd_stusb4500_read_rx_data_obj(union stusb4500_rx_data_obj_t rx_data[]);
 extern bool i2c_usb_pd_stusb4500_read_pdo_numb(uint8_t *pdo_numb);
 extern bool i2c_usb_pd_stusb4500_read_pdo_registers(union stusb4500_pdo_t *pdo1, union stusb4500_pdo_t *pdo2,
 		union stusb4500_pdo_t *pdo3);
 extern bool i2c_usb_pd_stusb4500_read_usb_pd_status(union stusb4500_usb_pd_status_t *usb_pd_status);
+
+	/// write registers
+extern bool i2c_usb_pd_stusb4500_write_reset(void);
+extern bool i2c_usb_pd_stusb4500_write_pdo_register(uint8_t pdo_number, union stusb4500_pdo_t *pdo);

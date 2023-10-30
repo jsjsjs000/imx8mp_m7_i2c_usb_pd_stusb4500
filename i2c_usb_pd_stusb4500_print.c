@@ -30,7 +30,7 @@ void i2c_usb_pd_stusb4500_print_port_status(union stusb4500_port_status_t *port_
 		case stusb4500_none_att: PRINTF("stusb4500_none_att\r\n"); break;
 		case stusb4500_snk_att:  PRINTF("stusb4500_snk_att\r\n"); break;
 		case stusb4500_dbg_att:  PRINTF("stusb4500_dbg_att\r\n"); break;
-		default:                 PRINTF("reserved\r\n");
+		default:                 PRINTF("reserved (%d)\r\n", port_status->port_status.attached_device);
 	}
 };
 
@@ -95,7 +95,7 @@ void i2c_usb_pd_stusb4500_print_pd_typec_status(uint8_t *pd_typec_status)
 
 void i2c_usb_pd_stusb4500_print_typec_status(union stusb4500_typec_status_t *typec_status)
 {
-	PRINTF("Type-C status:\r\n");
+	PRINTF("Type-C status:\r\n  FSM state = ");
 	switch (typec_status->typec_status.typec_fsm_state)
 	{
 		case 0x00: PRINTF("unattached snk\r\n"); break;
@@ -164,53 +164,54 @@ void i2c_usb_pd_stusb4500_print_device_id(uint8_t *device_id)
 
 void i2c_usb_pd_stusb4500_print_fixed_supply_pdo_source_t(union stusb4500_fixed_supply_pdo_source_t *pdo)
 {
-	PRINTF("  maximum current %d mA\r\n", pdo->fixed_supply_pdo_source.maximum_current_10ma * 10);
-	PRINTF("  voltage %d mV\r\n", pdo->fixed_supply_pdo_source.voltage_50mv * 50);
+	PRINTF("  maximum current = %d mA\r\n", pdo->fixed_supply_pdo_source.maximum_current_10ma * 10);
+	PRINTF("  voltage = %d mV\r\n", pdo->fixed_supply_pdo_source.voltage_50mv * 50);
 }
 
 void i2c_usb_pd_stusb4500_print_variable_supply_pdo_source_t(union stusb4500_variable_supply_pdo_source_t *pdo)
 {
-	PRINTF("  maximum current %d mA\r\n", pdo->variable_supply_pdo_source.maximum_current_10ma * 10);
-	PRINTF("  minimum voltage %d mV\r\n", pdo->variable_supply_pdo_source.minimum_voltage_50mv * 50);
-	PRINTF("  maximum voltage %d mV\r\n", pdo->variable_supply_pdo_source.maximum_voltage_50mv * 50);
+	PRINTF("  maximum current = %d mA\r\n", pdo->variable_supply_pdo_source.maximum_current_10ma * 10);
+	PRINTF("  minimum voltage = %d mV\r\n", pdo->variable_supply_pdo_source.minimum_voltage_50mv * 50);
+	PRINTF("  maximum voltage = %d mV\r\n", pdo->variable_supply_pdo_source.maximum_voltage_50mv * 50);
 }
 
 void i2c_usb_pd_stusb4500_print_battery_supply_pdo_source_t(union stusb4500_battery_supply_pdo_source_t *pdo)
 {
-	PRINTF("  maximum allowable power %d mW\r\n", pdo->battery_supply_pdo_source.maximum_allowable_power_250mw * 250);
-	PRINTF("  minimum voltage %d mV\r\n", pdo->battery_supply_pdo_source.minimum_voltage_50mv * 50);
-	PRINTF("  maximum voltage %d mV\r\n", pdo->battery_supply_pdo_source.maximum_voltage_50mv * 50);
+	PRINTF("  maximum allowable power = %d mW\r\n", pdo->battery_supply_pdo_source.maximum_allowable_power_250mw * 250);
+	PRINTF("  minimum voltage = %d mV\r\n", pdo->battery_supply_pdo_source.minimum_voltage_50mv * 50);
+	PRINTF("  maximum voltage = %d mV\r\n", pdo->battery_supply_pdo_source.maximum_voltage_50mv * 50);
 }
 
-void i2c_usb_pd_stusb4500_print_rx_data_structure(union stusb4500_rx_data_obj_t *rx_data)
+void i2c_usb_pd_stusb4500_print_rx_data_structure(uint8_t i, union stusb4500_rx_data_obj_t *rx_data)
 {
+	PRINTF("RX object %d:\r\n", i);
 	if (rx_data->type == stusb4500_pdo_type_fixed)
 	{
-		PRINTF("type fixed\r\n");
+		PRINTF("  type = fixed\r\n");
 		i2c_usb_pd_stusb4500_print_fixed_supply_pdo_source_t(
 				(union stusb4500_fixed_supply_pdo_source_t*)rx_data);
 	}
 	else if (rx_data->type == stusb4500_pdo_type_battery)
 	{
-		PRINTF("type battery\r\n");
+		PRINTF("  type = battery\r\n");
 		i2c_usb_pd_stusb4500_print_variable_supply_pdo_source_t(
 				(union stusb4500_variable_supply_pdo_source_t*)rx_data);
 	}
 	else if (rx_data->type == stusb4500_pdo_type_variable_supply)
 	{
-		PRINTF("type variable supply\r\n");
+		PRINTF("  type = variable supply\r\n");
 		i2c_usb_pd_stusb4500_print_battery_supply_pdo_source_t(
 				(union stusb4500_battery_supply_pdo_source_t*)rx_data);
 	}
 	else if (rx_data->type == stusb4500_pdo_type_reserved)
 	{
-		PRINTF("type reserved\r\n");
+		PRINTF("  type = reserved\r\n");
 	}
 }
 
 void i2c_usb_pd_stusb4500_print_pdo_structure(uint8_t pdo_number, union stusb4500_pdo_t *pdo)
 {
-	PRINTF("PDO %d:", pdo_number);
+	PRINTF("PDO %d:\r\n", pdo_number);
 	PRINTF("  operational current = %d mA\r\n", pdo->pdo.operational_current_10ma * 10);
 	PRINTF("  voltage = %d mV\r\n", pdo->pdo.voltage_50mv * 50);
 	PRINTF("  fast role swap required Type-C current = %d \r\n", pdo->pdo.fast_role_swap);
@@ -222,10 +223,11 @@ void i2c_usb_pd_stusb4500_print_pdo_structure(uint8_t pdo_number, union stusb450
 	PRINTF("  fixed supply = ");
 	switch (pdo->pdo.fixed_supply)
 	{
-		case 0: PRINTF("fixed\r\n");
-		case 1: PRINTF("battery\r\n");
-		case 2: PRINTF("variable supply\r\n");
-		case 3: PRINTF("reserved\r\n");
+		case 0:  PRINTF("fixed\r\n"); break;
+		case 1:  PRINTF("battery\r\n"); break;
+		case 2:  PRINTF("variable supply\r\n"); break;
+		case 3:  PRINTF("reserved\r\n"); break;
+		default: PRINTF("undefined\r\n");
 	}
 }
 
